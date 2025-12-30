@@ -24,20 +24,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, X, Upload, Video, Image as ImageIcon, ArrowLeft, Save, Eye } from "lucide-react";
+import { Plus, X, Video, Image as ImageIcon, ArrowLeft, Save, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { ImageUpload } from "@/components/ImageUpload";
+
+interface UploadedImage {
+  file: File;
+  preview: string;
+  id: string;
+}
 
 const historyFormSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
   summary: z.string().trim().min(1, "Summary is required").max(500, "Summary must be less than 500 characters"),
-  content: z.string().trim().min(1, "Content is required"),
+  content: z.string().min(1, "Content is required"),
   status: z.enum(["draft", "published"]).default("draft"),
   videoUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
-  images: z.array(z.object({
-    url: z.string().url("Please enter a valid image URL"),
-    public_id: z.string().optional(),
-  })).optional(),
   videos: z.array(z.object({
     url: z.string().url("Please enter a valid video URL"),
     public_id: z.string().optional(),
@@ -49,9 +53,8 @@ type HistoryFormValues = z.infer<typeof historyFormSchema>;
 const HistoryPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [images, setImages] = useState<{ url: string; public_id: string }[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [videos, setVideos] = useState<{ url: string; public_id: string }[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
 
   const form = useForm<HistoryFormValues>({
@@ -62,30 +65,9 @@ const HistoryPage = () => {
       content: "",
       status: "draft",
       videoUrl: "",
-      images: [],
       videos: [],
     },
   });
-
-  const addImage = () => {
-    if (newImageUrl.trim()) {
-      try {
-        new URL(newImageUrl);
-        setImages([...images, { url: newImageUrl, public_id: `img_${Date.now()}` }]);
-        setNewImageUrl("");
-      } catch {
-        toast({
-          title: "Invalid URL",
-          description: "Please enter a valid image URL",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
 
   const addVideo = () => {
     if (newVideoUrl.trim()) {
@@ -110,7 +92,10 @@ const HistoryPage = () => {
   const onSubmit = (data: HistoryFormValues) => {
     const formData = {
       ...data,
-      images,
+      images: uploadedImages.map(img => ({
+        file: img.file,
+        preview: img.preview,
+      })),
       videos,
     };
     
@@ -199,10 +184,10 @@ const HistoryPage = () => {
                     <FormItem>
                       <FormLabel>Content <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Write the full content here..." 
-                          className="bg-secondary border-0 focus-visible:ring-primary min-h-[200px]"
-                          {...field} 
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Write the full content here with rich formatting..."
                         />
                       </FormControl>
                       <FormMessage />
@@ -251,57 +236,14 @@ const HistoryPage = () => {
                   <ImageIcon className="h-5 w-5 text-primary" />
                   Images
                 </CardTitle>
-                <CardDescription>Add images for this history entry</CardDescription>
+                <CardDescription>Upload multiple images for this history entry</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-3">
-                  <Input
-                    placeholder="Enter image URL..."
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    className="bg-secondary border-0 focus-visible:ring-primary flex-1"
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
-                  />
-                  <Button type="button" onClick={addImage} className="bg-gradient-gold hover:opacity-90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add
-                  </Button>
-                </div>
-
-                {images.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                    {images.map((image, index) => (
-                      <div 
-                        key={index} 
-                        className="relative group rounded-lg overflow-hidden border border-border bg-muted aspect-video"
-                      >
-                        <img 
-                          src={image.url} 
-                          alt={`Image ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Invalid+Image";
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {images.length === 0 && (
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                    <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">No images added yet</p>
-                    <p className="text-sm text-muted-foreground">Add image URLs above</p>
-                  </div>
-                )}
+              <CardContent>
+                <ImageUpload
+                  images={uploadedImages}
+                  onChange={setUploadedImages}
+                  maxFiles={10}
+                />
               </CardContent>
             </Card>
 
