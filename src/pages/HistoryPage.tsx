@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Plus, X, Video, Image as ImageIcon, ArrowLeft, Save, Eye } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -51,7 +51,7 @@ const historyFormSchema = z.object({
 type HistoryFormValues = z.infer<typeof historyFormSchema>;
 
 const HistoryPage = () => {
-  const { toast } = useToast();
+  
   const navigate = useNavigate();
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [videos, setVideos] = useState<{ url: string; public_id: string }[]>([]);
@@ -76,10 +76,8 @@ const HistoryPage = () => {
         setVideos([...videos, { url: newVideoUrl, public_id: `vid_${Date.now()}` }]);
         setNewVideoUrl("");
       } catch {
-        toast({
-          title: "Invalid URL",
+        toast.error("Invalid URL", {
           description: "Please enter a valid video URL",
-          variant: "destructive",
         });
       }
     }
@@ -101,8 +99,7 @@ const HistoryPage = () => {
     
     console.log("Form submitted:", formData);
     
-    toast({
-      title: data.status === "published" ? "History Published!" : "Draft Saved!",
+    toast.success(data.status === "published" ? "History Published!" : "Draft Saved!", {
       description: `"${data.title}" has been ${data.status === "published" ? "published" : "saved as draft"} successfully.`,
     });
   };
