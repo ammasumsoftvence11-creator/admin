@@ -4,6 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rich Text Editor Styles */
+.rich-text-editor .ql-container {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: hsl(var(--secondary));
+  min-height: 250px;
+}
+
+.rich-text-editor .ql-toolbar {
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: hsl(var(--secondary));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rich-text-editor .ql-toolbar .ql-stroke {
+  stroke: hsl(var(--muted-foreground));
+}
+
+.rich-text-editor .ql-toolbar .ql-fill {
+  fill: hsl(var(--muted-foreground));
+}
+
+.rich-text-editor .ql-toolbar .ql-picker {
+  color: hsl(var(--muted-foreground));
+}
+
+.rich-text-editor .ql-toolbar button:hover .ql-stroke,
+.rich-text-editor .ql-toolbar button.ql-active .ql-stroke {
+  stroke: hsl(var(--primary));
+}
+
+.rich-text-editor .ql-toolbar button:hover .ql-fill,
+.rich-text-editor .ql-toolbar button.ql-active .ql-fill {
+  fill: hsl(var(--primary));
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-label:hover,
+.rich-text-editor .ql-toolbar .ql-picker-item:hover {
+  color: hsl(var(--primary));
+}
+
+.rich-text-editor .ql-editor {
+  padding: 1rem;
+  color: hsl(var(--foreground));
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground));
+  font-style: normal;
+}
+
+.rich-text-editor .ql-editor a {
+  color: hsl(var(--primary));
+}
+
+.rich-text-editor .ql-snow .ql-picker-options {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
 @layer base {
   :root {
     --background: 40 20% 98%;
