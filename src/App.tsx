@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import HistoryPage from "./pages/HistoryPage";
 import BannerPage from "./pages/BannerPage";
+import CulturePage from "./pages/CulturePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,7 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/banner" element={<BannerPage />} />
           <Route path="/history" element={<HistoryPage />} />
-          <Route path="/culture" element={<PlaceholderPage />} />
+          <Route path="/culture" element={<CulturePage />} />
           <Route path="/person" element={<PlaceholderPage />} />
           <Route path="/students" element={<PlaceholderPage />} />
           <Route path="/tourist" element={<PlaceholderPage />} />
