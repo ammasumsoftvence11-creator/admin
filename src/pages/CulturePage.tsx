@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ImageUpload";
-import { RichTextEditor } from "@/components/RichTextEditor";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -129,10 +130,12 @@ const CulturePage = () => {
                   <FormItem>
                     <FormLabel>Content *</FormLabel>
                     <FormControl>
-                      <RichTextEditor
+                      <ReactQuill
+                        theme="snow"
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Write your culture content here..."
+                        className="rich-text-editor"
                       />
                     </FormControl>
                     <FormMessage />
